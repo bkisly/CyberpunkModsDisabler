@@ -10,11 +10,21 @@ namespace CyberpunkModsDisabler
 {
     internal class ModsManager
     {
-        private readonly string _hiddenModsDirName = "HiddenMods";
-        private readonly string _modsDirName = "archive/pc/mod";
-        private readonly string _patchDirName = "archive/pc/patch";
-        private readonly string _pluginsDirName = "bin/x64/plugins";
-        private readonly string _scriptsDirName = "r6/scripts";
+        private static readonly string[] _originalModPaths = new string[4]
+        {
+            "../archive/pc/mod",
+            "../archive/pc/patch",
+            "../bin/x64/plugins",
+            "../r6/scripts"
+        };
+
+        private static readonly string[] _hiddenModPaths = new string[4]
+        {
+            "HiddenMods/mod",
+            "HiddenMods/patch",
+            "HiddenMods/plugins",
+            "HiddenMods/scripts"
+        };
 
         public ModsStatus ModsStatus { get; private set; }
 
@@ -31,10 +41,8 @@ namespace CyberpunkModsDisabler
                 case ModsStatus.NoMods:
                     throw new InvalidOperationException("There are no mods to move.");
                 default:
-                    MoveDirectory($"{_hiddenModsDirName}/{_modsDirName}", $"../{_modsDirName}");
-                    MoveDirectory($"{_hiddenModsDirName}/{_patchDirName}", $"../{_patchDirName}");
-                    MoveDirectory($"{_hiddenModsDirName}/{_pluginsDirName}", $"../{_pluginsDirName}");
-                    MoveDirectory($"{_hiddenModsDirName}/{_scriptsDirName}", $"../{_scriptsDirName}");
+                    foreach ((string original, string hidden) in _originalModPaths.Zip(_hiddenModPaths))
+                        MoveDirectory(hidden, original);
                     break;
             }
         }
@@ -45,36 +53,42 @@ namespace CyberpunkModsDisabler
 
             switch (ModsStatus)
             {
-                case ModsStatus.Enabled:
+                case ModsStatus.Disabled:
                     throw new InvalidOperationException("Mods are already disabled.");
                 case ModsStatus.NoMods:
                     throw new InvalidOperationException("There are no mods to move.");
                 default:
-                    MoveDirectory($"../{_modsDirName}", $"{_hiddenModsDirName}/{_modsDirName}");
-                    MoveDirectory($"../{_patchDirName}", $"{_hiddenModsDirName}/{_patchDirName}");
-                    MoveDirectory($"../{_pluginsDirName}", $"{_hiddenModsDirName}/{_pluginsDirName}");
-                    MoveDirectory($"../{_scriptsDirName}", $"{_hiddenModsDirName}/{_scriptsDirName}");
+                    foreach ((string original, string hidden) in _originalModPaths.Zip(_hiddenModPaths))
+                        MoveDirectory(original, hidden);
                     break;
             }
         }
 
-        private static void MoveDirectory(string source, string destination)
-        {
-            if(Directory.Exists(source)) Directory.Move(source, destination);
-        }
-
         private void UpdateModsStatus()
         {
-            bool emptyHiddenMods = Directory.GetFiles(_hiddenModsDirName).Length == 0;
-            bool emptyMods = Directory.GetFiles(_modsDirName).Length == 0
-                && Directory.GetFiles(_patchDirName).Length == 0
-                && Directory.GetFiles(_pluginsDirName).Length == 0
-                && Directory.GetFiles(_scriptsDirName).Length == 0;
+            (bool containsHiddenMods, bool containsOriginalMods) = (false, false);
 
-            if (emptyHiddenMods && emptyMods) ModsStatus = ModsStatus.Corrupted;
-            else if (emptyHiddenMods) ModsStatus = ModsStatus.Enabled;
-            else if (emptyMods) ModsStatus = ModsStatus.Disabled;
+            foreach((string original, string hidden) in _originalModPaths.Zip(_hiddenModPaths))
+            {
+                if (Directory.Exists(original))
+                    containsOriginalMods = containsOriginalMods || Directory.GetFiles(original).Any();
+
+                if (Directory.Exists(hidden))
+                    containsHiddenMods = containsHiddenMods || Directory.GetFiles(hidden).Any();
+            }
+
+            if (containsHiddenMods && containsOriginalMods) ModsStatus = ModsStatus.Corrupted;
+            else if (containsHiddenMods) ModsStatus = ModsStatus.Disabled;
+            else if (containsOriginalMods) ModsStatus = ModsStatus.Enabled;
             else ModsStatus = ModsStatus.NoMods;
+        }
+        private static void MoveDirectory(string source, string destination)
+        {
+            if (Directory.Exists(source))
+            {
+                if (Directory.Exists(destination)) Directory.Delete(destination, true);
+                Directory.Move(source, destination);
+            }
         }
     }
 

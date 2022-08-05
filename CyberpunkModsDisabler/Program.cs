@@ -4,10 +4,9 @@ internal class Program
 {
     public static void Main()
     {
-        ModsManagerUi modsManagerUi = new();
-
         try
         {
+            ModsManagerUi modsManagerUi = new();
             modsManagerUi.Init();
         }
         catch(Exception e)

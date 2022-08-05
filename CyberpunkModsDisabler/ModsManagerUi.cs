@@ -29,7 +29,7 @@ namespace CyberpunkModsDisabler
 
             Console.WriteLine("Press q to close the program or any other key to move the mods: ");
 
-            ConsoleKeyInfo keyInfo = Console.ReadKey();
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
             if(keyInfo.KeyChar != 'q')
             {
                 if (_modsManager.ModsStatus == ModsStatus.Enabled) _modsManager.MoveToHidden();
@@ -40,12 +40,6 @@ namespace CyberpunkModsDisabler
             }
         }
 
-        private static void CloseMessage()
-        {
-            Console.WriteLine("Press any key to close the program...");
-            Console.ReadKey();
-        }
-
         private void MoveModsToSelectedDest()
         {
             Console.WriteLine("This situation happens when there are mods either in the original location and in the hidden folder.");
@@ -54,7 +48,7 @@ namespace CyberpunkModsDisabler
             Console.WriteLine("2 - move mods from the hidden folder to the original location");
             Console.WriteLine("any other key - close the program");
 
-            ConsoleKeyInfo keyInfo = Console.ReadKey();
+            ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
             switch (keyInfo.KeyChar)
             {
@@ -67,6 +61,12 @@ namespace CyberpunkModsDisabler
             }
 
             Console.WriteLine("The operation has been performed successfully.");
+        }
+
+        private static void CloseMessage()
+        {
+            Console.WriteLine("Press any key to close the program...");
+            Console.ReadKey(true);
         }
     }
 }
