@@ -86,6 +86,7 @@ internal class ModsManager
         else if (containsOriginalMods) ModsStatus = ModsStatus.Enabled;
         else ModsStatus = ModsStatus.NoMods;
     }
+
     private static void MoveDirectory(string source, string destination)
     {
         if (Directory.Exists(source))
