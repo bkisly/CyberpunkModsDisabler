@@ -13,3 +13,7 @@ The idea is very simple - all you have to do is to launch the provided .exe file
 1. Download the provided .zip file *(view releases)*.
 2. Extract the given archive into your Cyberpunk 2077 root folder.
 3. Open the provided .exe file in order to launch the tool.
+
+## Prerequisites
+
+The following tool uses **.NET 6.0** and it might be compulsory to have it installed on your machine before launching the program.
